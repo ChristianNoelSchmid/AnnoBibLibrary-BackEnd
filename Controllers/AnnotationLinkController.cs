@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace AnnoBibLibrary.Controllers
 {
-    [Route("v1/links")]
+    [Route("links")]
     public class AnnotationLinkController : ControllerBase
     {
         private readonly ILogger<AnnotationLinkController> _logger;
@@ -27,8 +27,7 @@ namespace AnnoBibLibrary.Controllers
             _annotationRepo = annotationRepo;
         }
 
-        [HttpPost]
-        [Route("create")]
+        [HttpPost, Route("create")]
         public async Task<IActionResult> Create(int libraryId, int annotationId)
         {
             try
@@ -53,8 +52,7 @@ namespace AnnoBibLibrary.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("get")]
+        [HttpGet, Route("get")]
         public async Task<IActionResult> Get(int libraryId, int annotationId)
         {
             try
@@ -68,8 +66,7 @@ namespace AnnoBibLibrary.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("set/keywords")]
+        [HttpPut, Route("setkeywords")]
         public async Task<IActionResult> SetKeywords(int linkId, string keywords)
         {
             try

@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AnnoBibLibrary.Controllers
 {
-    [Route("v1/libraries")]
+    [Route("libraries")]
     public class LibraryController : ControllerBase
     {
         private readonly ILogger<LibraryController> _logger;
@@ -27,16 +27,14 @@ namespace AnnoBibLibrary.Controllers
             _annotationLinkRepo = annotationLinkRepo;
         }
 
-        [HttpPost]
-        [Route("create")]
+        [HttpPost, Route("create")]
         public async Task<IActionResult> Create(string title, string description, string keywordGroups)
         {
             var library = await _libraryRepo.CreateLibrary(title, description, keywordGroups);
             return Ok(new JsonResult(library));
         }
 
-        [HttpGet]
-        [Route("get/byid")]
+        [HttpGet, Route("get/byid")]
         public async Task<IActionResult> GetById(int libraryId)
         {
             try
@@ -50,8 +48,7 @@ namespace AnnoBibLibrary.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("get/byannotationid")]
+        [HttpGet, Route("get/byannotationid")]
         public async Task<IActionResult> GetByAnnotationId(int annotationId)
         {
             var libraryIds = await _annotationLinkRepo.GetLibraryIds(annotationId);

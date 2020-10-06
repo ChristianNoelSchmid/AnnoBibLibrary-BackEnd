@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace AnnoBibLibrary.Controllers
 {
-    [Route("v1/annotations")]
+    [Route("annotations")]
     public class AnnotationController : ControllerBase
     {
         private readonly ILogger<AnnotationController> _logger;
@@ -27,16 +27,14 @@ namespace AnnoBibLibrary.Controllers
             _annotationLinkRepo = annotationLinkRepo;
         }
 
-        [HttpPost]
-        [Route("create")]
+        [HttpPost, Route("create")]
         public async Task<IActionResult> Create(int libraryId, int sourceId)
         {
             var annotation = await this._annotationRepo.CreateAnnotation(sourceId);
             return Ok(new JsonResult(annotation));
         }
 
-        [HttpGet]
-        [Route("get/byid")]
+        [HttpGet, Route("get/byid")]
         public async Task<IActionResult> GetById(int annotationId)
         {
             try
@@ -53,8 +51,7 @@ namespace AnnoBibLibrary.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("get/bylibraryid")]
+        [HttpGet, Route("get/bylibraryid")]
         public async Task<IActionResult> GetByLibraryId(int libraryId)
         {
             var annotationIds = await _annotationLinkRepo.GetAnnotationIds(libraryId);
@@ -62,8 +59,9 @@ namespace AnnoBibLibrary.Controllers
 
             return Ok(JsonConvert.SerializeObject(annotations));
         }
-        [Route("update")]
-        public async Task<IActionResult> UpdateAnnotation(int annotationId, string notes, string quoteData)
+    
+        [HttpPut, Route("update")]
+        public async Task<IActionResult> Update(int annotationId, string notes, string quoteData)
         {
             try
             {

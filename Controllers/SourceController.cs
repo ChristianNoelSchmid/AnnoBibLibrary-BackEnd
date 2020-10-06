@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace AnnoBibLibrary.Controllers
 {
-    [Route("v1/sources")]
+    [Route("sources")]
     public class SourceController : ControllerBase
     {
         private readonly ILogger<SourceController> _logger;
@@ -71,7 +71,7 @@ namespace AnnoBibLibrary.Controllers
         /// Retrieves all Sources associated with the specified library,
         /// with the options of including each Source's associated Annotations
         /// </summary>
-        [HttpGet, Route("get")]
+        [HttpGet, Route("get/bylibraryid")]
         public async Task<IActionResult> GetSources(int libraryId, bool includeAnnotations = false)
         {
             try

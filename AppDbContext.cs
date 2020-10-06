@@ -1,21 +1,28 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AnnoBibLibrary.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace AnnoBibLibrary
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<Library> Libraries { get; set; }
         public DbSet<Source> Sources { get; set; }
         public DbSet<Annotation> Annotations { get; set; }
 
         public DbSet<AnnotationLink> AnnotationLinks { get; set; }
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+            : base(options) 
+            { }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder builder) 
         {
+            base.OnModelCreating(builder);
+
             builder.Entity<Library>()
                 .HasData(
                     new Library
@@ -39,43 +46,49 @@ namespace AnnoBibLibrary
                     {
                         Id = 1,
                         Type = "Simple",
-                        Fields = "{\"list\": [{ \"name\": \"title\", \"type\": \"proper\", \"values\": [\"The Lord of the Rings: the Fellowship of the Ring\"] }, { \"name\": \"author\", \"type\": \"name\", \"values\": [\"J.R.R. Tolkien\"] }]}",
+                        Fields = $"<<title:{(int)FieldType.Proper}>>The Lord of the Rings: the Fellowship of the Ring<<author:{(int)FieldType.Name}>>J.R.R. Tolkien",
                         Annotations = new List<Annotation>()
                     },
                     new Source
                     {
                         Id = 2,
                         Type = "Simple",
-                        Fields = "{\"list\": [{ \"name\": \"title\", \"type\": \"proper\", \"values\": [\"The Lord of the Rings: the Two Towers\"] }, { \"name\": \"author\", \"type\": \"name\", \"values\": [\"J.R.R. Tolkien\"] }]}",
+                        Fields = $"<<title:{(int)FieldType.Proper}>>The Lord of the Rings: the Two Towers<<author:{(int)FieldType.Name}>>J.R.R. Tolkien",
                         Annotations = new List<Annotation>()
                     },
                     new Source
                     {
                         Id = 3,
                         Type = "Simple",
-                        Fields = "{\"list\": [{ \"name\": \"title\", \"type\": \"proper\", \"values\": [\"The Lord of the Rings: the Return of the King\"] }, { \"name\": \"author\", \"type\": \"name\", \"values\": [\"J.R.R. Tolkien\"] }]}",
+                        Fields = $"<<title:{(int)FieldType.Proper}>>The Lord of the Rings: the Return of the King<<author:{(int)FieldType.Name}>>J.R.R. Tolkien",
                         Annotations = new List<Annotation>()
                     },
                     new Source
                     {                            
                         Id = 4,
                         Type = "Simple",
-                        Fields = "{\"list\": [{ \"name\": \"title\", \"type\": \"proper\", \"values\": [\"The Chronicles of Narnia: the Lion, the Witch, and the Wardrobe\"] }, { \"name\": \"author\", \"type\": \"name\", \"values\": [\"C.S. Lewis\"] }]}",
+                        Fields = $"<<title:{(int)FieldType.Proper}>>The Chronicles of Narnia: the Lion, the Witch, and the Wardrobe<<author:{(int)FieldType.Name}>>C.S. Lewis",
                         Annotations = new List<Annotation>()
                     },
                     new Source
                     {                            
                         Id = 5,
                         Type = "Simple",
-                        Fields = "{\"list\": [{ \"name\": \"title\", \"type\": \"proper\", \"values\": [\"The Chronicles of Narnia: Prince Caspian\"] }, { \"name\": \"author\", \"type\": \"name\", \"values\": [\"C.S. Lewis\"] }]}",
+                        Fields = $"<<title:{(int)FieldType.Proper}>>The Chronicles of Narnia: Prince Caspian<<author:{(int)FieldType.Name}>>C.S. Lewis",
                         Annotations = new List<Annotation>()
                     },
                     new Source
                     {                            
                         Id = 6,
                         Type = "Simple",
-                        Fields = "{\"list\": [{ \"name\": \"title\", \"type\": \"proper\", \"values\": [\"The Chronicles of Narnia: the Magician's Nephew\"] }, { \"name\": \"author\", \"type\": \"name\", \"values\": [\"C.S. Lewis\"] }]}",
+                        Fields = $"<<title:{(int)FieldType.Proper}>>The Chronicles of Narnia: the Magician's Nephew<<author:{(int)FieldType.Name}>>C.S. Lewis",
                         Annotations = new List<Annotation>()
+                    },
+                    new Source
+                    {
+                        Id = 7,
+                        Type = "Simple",
+                        Fields = $"<<title:{(int)FieldType.Proper}>>Learning Biblical Hebrew<<author:{(int)FieldType.Name}>>Karl Kutz;;Rebekah Jospberger"
                     }
                 );
 
@@ -121,6 +134,13 @@ namespace AnnoBibLibrary
                         Id = 6,
                         SourceId = 6,
                         Notes = "Magician",
+                        QuoteData = "[]"
+                    },
+                    new Annotation
+                    {
+                        Id = 7,
+                        SourceId = 7,
+                        Notes = "Hebrew",
                         QuoteData = "[]"
                     }
                 );
@@ -168,8 +188,16 @@ namespace AnnoBibLibrary
                         LibraryId = 2,
                         AnnotationId = 6,
                         KeywordValues = ""
+                    },
+                    new AnnotationLink
+                    {
+                        Id = 7,
+                        LibraryId = 2,
+                        AnnotationId = 7,
+                        KeywordValues = ""
                     }
                 );
         }
+ 
     }
 }
