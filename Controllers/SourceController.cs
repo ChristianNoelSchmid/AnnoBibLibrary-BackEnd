@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using AnnoBibLibrary.Exceptions;
 using AnnoBibLibrary.Repos;
+using AnnoBibLibrary.RouteModels;
+using AnnoBibLibrary.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -71,14 +73,15 @@ namespace AnnoBibLibrary.Controllers
         /// Retrieves all Sources associated with the specified library,
         /// with the options of including each Source's associated Annotations
         /// </summary>
-        [HttpGet, Route("get/bylibraryid")]
-        public async Task<IActionResult> GetSources(int libraryId, bool includeAnnotations = false)
+        [Authorize]
+        [HttpPut, Route("get/bylibraryid")]
+        public async Task<IActionResult> GetSources([FromBody]LibrarySources librarySources)
         {
             try
             {
-                var annotationIds = await _annotationLinkRepo.GetAnnotationIds(libraryId);
+                var annotationIds = await _annotationLinkRepo.GetAnnotationIds(librarySources.LibraryId);
 
-                if(includeAnnotations)
+                if(librarySources.IncludeAnnotations)
                     // Load the annotations in question into memory, so that
                     // upon Sources serialization they're included
                     foreach(var annotation in _annotationRepo.GetAnnotations(annotationIds));
@@ -89,7 +92,7 @@ namespace AnnoBibLibrary.Controllers
             }
             catch(LibraryNotFoundException)
             {
-                return BadRequest($"Library with id={libraryId} not found.");
+                return BadRequest($"Library with id={librarySources.LibraryId} not found.");
             }
         }
     }

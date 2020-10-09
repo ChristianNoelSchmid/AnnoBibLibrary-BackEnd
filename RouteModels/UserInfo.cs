@@ -25,5 +25,8 @@ namespace AnnoBibLibrary.RouteModels
         [JsonProperty("name")]
         public string FullName => $"{FirstName} {LastName}";
 
+        [JsonProperty("token")]
+        public string Token { get; set; }
+
     }
 }

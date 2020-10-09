@@ -183,11 +183,9 @@ namespace AnnoBibLibrary.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<bool>("LockoutEnabled")
@@ -254,7 +252,12 @@ namespace AnnoBibLibrary.Migrations
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
                         .HasMaxLength(255);
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Libraries");
 
@@ -473,6 +476,13 @@ namespace AnnoBibLibrary.Migrations
                         .HasForeignKey("SourceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("AnnoBibLibrary.Models.Library", b =>
+                {
+                    b.HasOne("AnnoBibLibrary.Models.ApplicationUser", "User")
+                        .WithMany("Libraries")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

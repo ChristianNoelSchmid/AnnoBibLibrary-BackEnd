@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AnnoBibLibrary.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201001040021_FullNameToUsers")]
-    partial class FullNameToUsers
+    [Migration("20201007052030_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -185,11 +185,9 @@ namespace AnnoBibLibrary.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<bool>("LockoutEnabled")

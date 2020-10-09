@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using AnnoBibLibrary.Models;
 using AnnoBibLibrary.Repos;
 using AnnoBibLibrary.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -49,12 +47,13 @@ namespace AnnoBibLibrary
                         builder => 
                         {
                             builder.WithOrigins("http://localhost:8080");
+                            builder.AllowAnyMethod();
                             builder.AllowAnyHeader();
                             builder.AllowCredentials();
                         });
                 });
 
-            services.AddDbContextPool<AppDbContext>(options => 
+            services.AddDbContext<AppDbContext>(options => 
                 options.UseMySql(Configuration.GetConnectionString("LibraryDb"))
             );
 
@@ -63,32 +62,15 @@ namespace AnnoBibLibrary
                 .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(Configuration.GetSection("IdentityOptions"));
-
-            services.AddAuthentication(options => {
-                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            }).AddCookie(options => {
-                    // Change SameSite settings to ensure that client webapp
-                    // can connect when both are on the same server
-                    options.Cookie.SameSite = SameSiteMode.None;
-                    options.Events = new CookieAuthenticationEvents
-                    {
-                        OnRedirectToLogin = redirectContext =>
-                        {
-                            redirectContext.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                            return Task.CompletedTask;
-                        }
-                    };
-                    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-                });
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 
             services.AddControllers();
 
+            services.AddScoped<IUserRepo, DbUserRepo>();
             services.AddScoped<ISourceRepo, DbSourceRepo>();
             services.AddScoped<ILibraryRepo, DbLibraryRepo>();
             services.AddScoped<IAnnotationRepo, DbAnnotationRepo>();
             services.AddScoped<IAnnotationLinkRepo, DbAnnotationLinkRepo>();
-            services.AddScoped<Services.IAuthenticationService, Services.AuthenticationService>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -96,20 +78,17 @@ namespace AnnoBibLibrary
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
                 app.UseCors("AllowVueClient");
+                app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection(); Eventually add this when public
+
+            app.UseAuthentication();
 
             app.UseRouting();
 
-            // This is the middleware that extracts user information from the request 
-            // (using the configured scheme), enabling the application to perform authentication challenges, 
-            // for example when adding the [Authorize] attribute. 
-            // source: https://www.dotnetcurry.com/aspnet-core/1511/authentication-aspnetcore-signalr-vuejs
-            app.UseAuthentication();
-            app.UseAuthorization();
+            app.UseMiddleware<JwtMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

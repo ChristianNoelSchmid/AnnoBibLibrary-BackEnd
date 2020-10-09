@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AnnoBibLibrary.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20200928205240_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20201009023022_UserLibraryFunctionality")]
+    partial class UserLibraryFunctionality
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -184,6 +184,12 @@ namespace AnnoBibLibrary.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<string>("FirstName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("tinyint(1)");
 
@@ -248,7 +254,12 @@ namespace AnnoBibLibrary.Migrations
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
                         .HasMaxLength(255);
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Libraries");
 
@@ -467,6 +478,13 @@ namespace AnnoBibLibrary.Migrations
                         .HasForeignKey("SourceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("AnnoBibLibrary.Models.Library", b =>
+                {
+                    b.HasOne("AnnoBibLibrary.Models.ApplicationUser", "User")
+                        .WithMany("Libraries")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -4,10 +4,11 @@ using System.Text;
 using System.Threading.Tasks;
 using AnnoBibLibrary.Exceptions;
 using AnnoBibLibrary.Models;
+using AnnoBibLibrary.Repos;
 using AnnoBibLibrary.RouteModels;
 using AnnoBibLibrary.Services;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -24,44 +25,32 @@ namespace AnnoBibLibrary.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
 
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly Services.IAuthenticationService _authorizationService;
+
+        private readonly IUserRepo _userRepo;
 
         public AccountController (
             ILogger<AccountController> logger,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             SignInManager<ApplicationUser> signInManager,
-            Services.IAuthenticationService authorizationService
+            IUserRepo userRepo
         ) {
             _logger = logger;
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
-            _authorizationService = authorizationService;
+            _userRepo = userRepo;
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create(Credentials credentials)
+        public async Task<IActionResult> Create(NewUser newUser)
         {
             if(ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = credentials.Email, Email = credentials.Email };
-                var createResult = await _userManager.CreateAsync(user, credentials.Password);
+                var confirmCode = await _userRepo.CreateUser(newUser);
 
-                if(createResult.Succeeded)
-                {
-                    _logger.LogInformation("Create new user with email " + credentials.Email); 
-
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-                    return Ok(code);
-                } 
-                else
-                {
-                    foreach(var error in createResult.Errors)
-                        ModelState.AddModelError("", error.Description);
-                }
+                if(confirmCode != null)
+                    return Ok(confirmCode);
             }
             return BadRequest(ModelState);
         }
@@ -71,8 +60,8 @@ namespace AnnoBibLibrary.Controllers
         {
             var user = await _userManager.FindByEmailAsync(email);
             var confirmResult = await _userManager.ConfirmEmailAsync(
-                user, 
-                Encoding.Default.GetString(WebEncoders.Base64UrlDecode(code))
+                    user, 
+                    Encoding.Default.GetString(WebEncoders.Base64UrlDecode(code))
                 );
 
             if(confirmResult.Succeeded)
@@ -91,48 +80,28 @@ namespace AnnoBibLibrary.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody]Credentials credentials)
         {
-            _logger.LogInformation(credentials.ToString());
-
             try
             {
-                // We will typically move the validation of credentials
-                // and return of matched principal into its own
-                // AuthenticationService
-                // Leaving it here for convenience (change later)
-                if(!await _authorizationService.ValidateLoginAsync(credentials))
-                {
-                    return BadRequest("Account email or password not found.");
-                }
-
-                var user = await _userManager.FindByEmailAsync(credentials.Email);
-
-                await _signInManager.SignInAsync(user, new AuthenticationProperties{
-                    IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14)
-                });
-
-                return Ok(JsonConvert.SerializeObject(new UserInfo(user)));
+                var response = await _userRepo.Authenticate(credentials);
+                Response.Cookies.Append("JWT", response.Token, 
+                    new CookieOptions 
+                    { 
+                        IsEssential = true, 
+                        Expires = DateTime.Now.AddDays(14),  
+                        HttpOnly = true
+                    });
+                return Ok(response); 
             }
-            catch(AccountNotFoundException)
+            catch(EmailOrPasswordNotMatchedException)
             {
-                return BadRequest("Account was not found.");
+                return BadRequest("Email or password did not match");
             }
         }
 
-        [HttpPost("trylogin")]
         [Authorize]
-        public async Task<IActionResult> TryLogin()
+        [HttpGet("logout")]
+        public IActionResult Logout()
         {
-            var email = HttpContext.User.FindFirst(ClaimTypes.Email).Value;
-            var user = await _userManager.FindByEmailAsync(email);
-
-            return Ok(JsonConvert.SerializeObject(new UserInfo(user)));
-        }
-
-        [HttpGet("logout"), Authorize]
-        public async Task<IActionResult> Logout()
-        {
-            await _signInManager.SignOutAsync();
             return Ok();
         }
     }

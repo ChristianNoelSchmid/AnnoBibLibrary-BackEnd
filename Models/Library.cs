@@ -17,5 +17,11 @@ namespace AnnoBibLibrary.Models
 
         [Required, JsonProperty("keywordGroups")]
         public string KeywordGroups { get; set; }
+
+        /* Many-to-one relationship with ApplicationUser */
+        [JsonProperty("userId")]
+        public string UserId { get; set; }
+
+        public ApplicationUser User { get; set; }
     }
 }
