@@ -54,7 +54,9 @@ namespace AnnoBibLibrary
                 });
 
             services.AddDbContext<AppDbContext>(options => 
-                options.UseMySql(Configuration.GetConnectionString("LibraryDb"))
+                options.UseMySql(Configuration.GetConnectionString("LibraryDb"), options => {
+                    options.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+                })
             );
 
             services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)

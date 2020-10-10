@@ -27,6 +27,17 @@ namespace AnnoBibLibrary.Repos
             return library;
         }
 
+        public async Task<Library> AddUser(int id, string userId)
+        {
+            var library = await _dbContext.Libraries.FindAsync(id);
+            if(library == null) throw new LibraryNotFoundException();
+
+            library.UserId = userId;
+            await _dbContext.SaveChangesAsync();
+
+            return library;
+        }
+
         public async Task<Library> GetLibrary(int id)
         {
             var library = await _dbContext.Libraries.FindAsync(id);
@@ -41,6 +52,12 @@ namespace AnnoBibLibrary.Repos
         {
             return _dbContext.Libraries
                 .Where(library => ids.Contains(library.Id));
+        }
+
+        public IEnumerable<Library> GetUserLibraries(string userId)
+        {
+            return _dbContext.Libraries
+                .Where(library => library.UserId == userId);
         }
     }
 }

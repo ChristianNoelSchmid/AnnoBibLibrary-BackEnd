@@ -14,6 +14,11 @@ namespace AnnoBibLibrary.Repos
             _libraries = new List<Library>();
         }
 
+        public Task<Library> AddUser(int id, string userId)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public Task<Library> CreateLibrary(string title, string description, string keywordGroups)
         {
             var library = new Library
@@ -38,6 +43,11 @@ namespace AnnoBibLibrary.Repos
             return Task.Run(
                 () => _libraries.FirstOrDefault(lib => lib.Id == id)
             );
+        }
+
+        public IEnumerable<Library> GetUserLibraries(string userId)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

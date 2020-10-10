@@ -10,6 +10,10 @@ namespace AnnoBibLibrary.Repos
 
         Task<Library> GetLibrary(int id);
 
+        Task<Library> AddUser(int id, string userId);
+
         IEnumerable<Library> GetLibraries(IEnumerable<int> ids);
+
+        IEnumerable<Library> GetUserLibraries(string userId);
     }
 }

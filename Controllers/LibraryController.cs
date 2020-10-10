@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 using AnnoBibLibrary.Exceptions;
 using AnnoBibLibrary.Models;
 using AnnoBibLibrary.Repos;
+using AnnoBibLibrary.RouteModels;
+using AnnoBibLibrary.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -14,17 +17,20 @@ namespace AnnoBibLibrary.Controllers
     {
         private readonly ILogger<LibraryController> _logger;
         private readonly ILibraryRepo _libraryRepo;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         private readonly IAnnotationLinkRepo _annotationLinkRepo;
 
         public LibraryController(
             ILogger<LibraryController> logger,
             ILibraryRepo libraryRepo,
-            IAnnotationLinkRepo annotationLinkRepo
+            IAnnotationLinkRepo annotationLinkRepo,
+            UserManager<ApplicationUser> userManager
         ) {
             _logger = logger;
             _libraryRepo = libraryRepo;
             _annotationLinkRepo = annotationLinkRepo;
+            _userManager = userManager;
         }
 
         [HttpPost, Route("create")]
@@ -48,6 +54,12 @@ namespace AnnoBibLibrary.Controllers
             }
         }
 
+        [HttpPut, Route("get/byuserid")]
+        public IActionResult GetByUserId(string id)
+        {
+            return Ok(_libraryRepo.GetUserLibraries(id));
+        }
+
         [HttpGet, Route("get/byannotationid")]
         public async Task<IActionResult> GetByAnnotationId(int annotationId)
         {
@@ -55,6 +67,14 @@ namespace AnnoBibLibrary.Controllers
             var libraries = _libraryRepo.GetLibraries(libraryIds);
 
             return Ok(JsonConvert.SerializeObject(libraries));
+        }
+
+        [HttpPut, Route("adduser")]
+        public async Task<IActionResult> AddUser([FromBody]UserLibrary userLibrary)
+        {
+            await _libraryRepo.AddUser(userLibrary.LibraryId, userLibrary.UserId);
+
+            return Ok();
         }
     }
 }

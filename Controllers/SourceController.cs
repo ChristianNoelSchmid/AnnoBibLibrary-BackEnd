@@ -34,10 +34,11 @@ namespace AnnoBibLibrary.Controllers
         }
 
         /// <summary>
-        /// Creating a new Source requires three separate db transactions.
+        /// Creating a new Source requires four separate db transactions.
         /// First, the Library it's associated with must be retrieved.
         /// Second, the Source is created.
-        /// Third, a new Annotation is created, linking the Source to the Library
+        /// Third, a new Annotation is created
+        /// Finally, an AnnotationLink connects the Annotation to the Library
         /// </summary>
         [HttpPost, Route("create")]
         public async Task<IActionResult> Create(int libraryId, string fields)

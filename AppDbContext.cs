@@ -99,49 +99,49 @@ namespace AnnoBibLibrary
                         Id = 1,
                         SourceId = 1,
                         Notes = "Fellowship",
-                        QuoteData = "[]"
+                        QuoteData = "<<24:eggs;;30;;basket>>There are 30 dozen eggs in the basket."
                     },
                     new Annotation
                     {
                         Id = 2,
                         SourceId = 2,
                         Notes = "Towers",
-                        QuoteData = "[]"
+                        QuoteData = ""
                     },
                     new Annotation
                     {
                         Id = 3,
                         SourceId = 3,
                         Notes = "King",
-                        QuoteData = "[]"
+                        QuoteData = ""
                     },
                     new Annotation
                     {
                         Id = 4,
                         SourceId = 4,
                         Notes = "Lion",
-                        QuoteData = "[]"
+                        QuoteData = ""
                     },
                     new Annotation
                     {
                         Id = 5,
                         SourceId = 5,
                         Notes = "Prince",
-                        QuoteData = "[]"
+                        QuoteData = ""
                     },                     
                     new Annotation
                     {
                         Id = 6,
                         SourceId = 6,
                         Notes = "Magician",
-                        QuoteData = "[]"
+                        QuoteData = ""
                     },
                     new Annotation
                     {
                         Id = 7,
                         SourceId = 7,
                         Notes = "Hebrew",
-                        QuoteData = "[]"
+                        QuoteData = ""
                     }
                 );
 
